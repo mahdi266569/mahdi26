@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TRADER X Publish Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brand",
+    "language",
+    "topic",
+    "hook",
+    "youtube_titles",
+    "short_script",
+    "long_script",
+    "instagram_caption",
+    "hashtags",
+    "cta",
+    "monetization_angle",
+    "status"
+  ],
+  "properties": {
+    "brand": {"type": "string", "const": "TRADER X"},
+    "language": {"type": "string", "const": "fa"},
+    "topic": {"type": "string", "minLength": 1},
+    "hook": {"type": "string", "minLength": 1},
+    "youtube_titles": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string", "minLength": 1}},
+    "short_script": {"type": "string", "minLength": 1},
+    "long_script": {"type": "string", "minLength": 1},
+    "instagram_caption": {"type": "string", "minLength": 1},
+    "hashtags": {"type": "array", "maxItems": 10, "items": {"type": "string", "minLength": 1}},
+    "cta": {"type": "string", "minLength": 1},
+    "monetization_angle": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "const": "draft"}
+  }
+}
