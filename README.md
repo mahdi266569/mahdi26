@@ -11,7 +11,7 @@
 
 ## تنظیم API
 
-کلید Gemini را با نام `GEMINI_API_KEY` در GitHub Secrets قرار دهید.
+کلید Gemini را با نام `AIzaSyA1s1Wk5MKfvgxQrQwYMQZq9SwAlMClisU` در GitHub Secrets قرار دهید.
 هرگز کلید API را داخل فایل‌ها یا کد Commit نکنید.
 
 ## اجرا
