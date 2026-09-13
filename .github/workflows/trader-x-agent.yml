@@ -1,14 +1,25 @@
-name: TRADER X Content Agent
+name: TRADER X Content Engine
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'input/idea.md'
-      - 'prompts/content_agent.md'
+      - 'input/**'
+      - 'prompts/**'
+      - 'src/**'
+      - 'schemas/**'
+      - '.github/workflows/trader-x-agent.yml'
 
 permissions:
   contents: write
+
+concurrency:
+  group: trader-x-content
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: '1'
+  GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
 
 jobs:
   generate:
@@ -17,42 +28,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate content with Gemini
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate source
+        run: python -m compileall -q src
+
+      - name: Generate TRADER X content
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          python - <<'PY'
-          import os, json, urllib.request
+        run: python -m src.main
+
+      - name: Validate generated JSON
+        run: python - <<'PY'
+          import json
           from pathlib import Path
-
-          key = os.environ.get('GEMINI_API_KEY')
-          if not key:
-              raise SystemExit('GEMINI_API_KEY secret is not configured.')
-
-          idea = Path('input/idea.md').read_text(encoding='utf-8')
-          prompt = Path('prompts/content_agent.md').read_text(encoding='utf-8')
-          full = prompt + '\n\nایده خام:\n' + idea
-
-          url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key
-          payload = {'contents': [{'parts': [{'text': full}]}]}
-          req = urllib.request.Request(
-              url,
-              data=json.dumps(payload).encode('utf-8'),
-              headers={'Content-Type': 'application/json'},
-              method='POST'
-          )
-          with urllib.request.urlopen(req, timeout=120) as r:
-              data = json.load(r)
-
-          text = data['candidates'][0]['content']['parts'][0]['text']
-          Path('output').mkdir(exist_ok=True)
-          Path('output/content.md').write_text(text, encoding='utf-8')
+          data = json.loads(Path('output/publish.json').read_text(encoding='utf-8'))
+          required = ['brand', 'language', 'topic', 'hook', 'youtube_titles', 'short_script', 'long_script', 'instagram_caption', 'hashtags', 'cta', 'monetization_angle', 'status']
+          missing = [k for k in required if k not in data]
+          if missing:
+              raise SystemExit(f'Missing fields: {missing}')
+          if data['status'] != 'draft':
+              raise SystemExit('New content must start with status=draft')
+          print('JSON validation: OK')
           PY
 
-      - name: Commit generated content
+      - name: Commit generated package
         run: |
           git config user.name 'TRADER X Agent'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add output/content.md
-          git diff --cached --quiet || git commit -m 'Generate TRADER X content'
+          git add output/
+          git diff --cached --quiet || git commit -m 'Generate TRADER X content [skip ci]'
           git push
