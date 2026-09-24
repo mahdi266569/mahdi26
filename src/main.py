@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -28,6 +29,14 @@ def extract_json(text: str) -> dict:
 
 
 def main() -> None:
+    # Keep the original no-argument content command intact, while allowing the
+    # named command-room agents to be invoked from the same entry point.
+    if len(sys.argv) > 1:
+        from src.agent_cli import main as agent_main
+
+        agent_main(sys.argv[1:])
+        return
+
     key = os.getenv("GEMINI_API_KEY", "").strip()
     if not key:
         raise SystemExit("GEMINI_API_KEY secret is not configured.")

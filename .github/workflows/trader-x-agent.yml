@@ -8,6 +8,7 @@ on:
       - 'prompts/**'
       - 'src/**'
       - 'schemas/**'
+      - 'config/**'
       - '.github/workflows/trader-x-agent.yml'
 
 permissions:
@@ -34,7 +35,9 @@ jobs:
           python-version: '3.12'
 
       - name: Validate source
-        run: python -m compileall -q src
+        run: |
+          python -m compileall -q src
+          python -m unittest discover -s tests -v
 
       - name: Generate TRADER X content
         env:
