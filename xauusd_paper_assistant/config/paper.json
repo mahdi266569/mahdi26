@@ -1,0 +1,20 @@
+{
+  "strategy_version": "smc_bos_fvg_v1",
+  "initial_equity": 10000.0,
+  "max_risk_pct": 1.0,
+  "max_daily_drawdown_pct": 2.0,
+  "min_rr": 2.0,
+  "max_open_positions": 1,
+  "atr_period": 5,
+  "swing_left_bars": 2,
+  "swing_right_bars": 2,
+  "fvg_min_gap_atr": 0.1,
+  "tick_size": 0.01,
+  "tick_value_per_lot": 1.0,
+  "volume_min": 0.01,
+  "volume_max": 5.0,
+  "volume_step": 0.01,
+  "spread_points": 20.0,
+  "slippage_points": 5.0,
+  "commission_per_lot": 7.0
+}
