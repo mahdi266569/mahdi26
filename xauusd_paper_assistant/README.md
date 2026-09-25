@@ -29,6 +29,20 @@ python -m xauusd_paper_assistant.src.cli backtest \
 
 خروجی شامل `events.jsonl` و `summary.json` در پوشه‌ی audit است. داده‌ی نمونه ساختگی است و فقط برای صحت مسیر اجراست، نه سنجش عملکرد.
 
+## دریافت خودکار داده از MT5 (فقط خواندن)
+
+این دستور فقط کندل‌های **بسته‌شده** را از MetaTrader 5 نصب‌شده روی همان کامپیوتر می‌خواند و به CSV تبدیل می‌کند. این دستور هیچ login، credential، سفارش، `order_send` یا حالت live ندارد. باید MT5 باز باشد، به یک حساب/سرور داده‌ای که خودتان وارد شده‌اید متصل باشد، نماد در Market Watch دیده شود، و پکیج `MetaTrader5` برای همان Python نصب شده باشد.
+
+```bash
+python -m xauusd_paper_assistant.src.cli fetch-mt5 \
+  --symbol XAUUSD \
+  --timeframe M5 \
+  --bars 500 \
+  --output xauusd_paper_assistant/data/xauusd_m5.csv
+```
+
+سپس همان CSV را با فرمان `backtest` اجرا کنید. زمان هر bar به زمان بسته‌شدن آن تبدیل می‌شود و bar در حال شکل‌گیری عمداً خوانده نمی‌شود تا داده‌ی آینده وارد آزمون نشود.
+
 ## قرارداد داده
 
 ستون‌های اجباری CSV:

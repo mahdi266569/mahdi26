@@ -7,6 +7,7 @@ from pathlib import Path
 from .analysis import signal_for_closed_bar
 from .audit import AuditLog
 from .data import load_csv
+from .mt5_source import export_closed_bars
 from .paper import Position, evaluate, fill
 from .risk import decide
 
@@ -76,9 +77,16 @@ def main() -> None:
     backtest.add_argument("--data", type=Path, required=True)
     backtest.add_argument("--config", type=Path, required=True)
     backtest.add_argument("--audit-dir", type=Path, required=True)
+    fetch = sub.add_parser("fetch-mt5", help="Export closed MT5 bars only; never sends orders")
+    fetch.add_argument("--symbol", required=True)
+    fetch.add_argument("--timeframe", choices=["M5", "M15", "H1", "H4", "D1"], default="M5")
+    fetch.add_argument("--bars", type=int, default=500)
+    fetch.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "backtest":
         print(json.dumps(run(args.data, args.config, args.audit_dir), indent=2))
+    if args.command == "fetch-mt5":
+        print(json.dumps({"mode": "READ_ONLY", "bars_exported": export_closed_bars(args.symbol, args.timeframe, args.bars, args.output), "output": str(args.output)}, indent=2))
 
 
 if __name__ == "__main__":
