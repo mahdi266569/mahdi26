@@ -40,6 +40,32 @@ def run(data_path: Path, config_path: Path, audit_dir: Path) -> dict:
             audit.write("PAPER_FILL", event_time_utc=bar.event_time, side=signal.side, entry=position.filled_entry, stop_loss=signal.stop_loss, take_profit=signal.take_profit, volume=decision.volume, reason=signal.reason)
     summary = {"mode": "PAPER", "bars": len(bars), "data_issues": len(issues), "closed_trades": trades, "wins": wins, "equity": round(equity, 4), "open_position": position is not None}
     (audit_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    data_kind = "synthetic" if bars and all(bar.source == "SYNTHETIC" for bar in bars) else "historical"
+    limitations = ["Paper-only; no live execution or broker connection."]
+    if data_kind == "synthetic":
+        limitations.append("Synthetic sample data is only for execution-path validation.")
+    if trades < 100:
+        limitations.append("Fewer than 100 closed paper trades; evidence is insufficient for performance claims.")
+    report = {
+        "run_id": audit.config_hash[:16] + "-" + str(len(bars)),
+        "strategy_version": config["strategy_version"],
+        "config_hash": audit.config_hash,
+        "mode": "PAPER",
+        "data_kind": data_kind,
+        "data_window": {
+            "start": bars[0].event_time.isoformat() if bars else "",
+            "end": bars[-1].event_time.isoformat() if bars else "",
+            "symbol": bars[0].symbol if bars else "UNKNOWN",
+            "timeframe": "M5",
+        },
+        "data_quality": {"issues_count": len(issues)},
+        "evidence_status": "VERIFIED" if data_kind != "synthetic" and trades >= 100 and not issues else "INSUFFICIENT_EVIDENCE",
+        "closed_trades": trades,
+        "metrics": {"wins": wins, "equity": round(equity, 4)},
+        "rejection_reason_counts": {},
+        "limitations": limitations,
+    }
+    (audit_dir / "paper_research_report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return summary
 
 

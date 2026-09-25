@@ -12,6 +12,10 @@
 - لاگ JSONL قابل حسابرسی با `config_hash` و `strategy_version`
 - تست‌های بدون وابستگی خارجی
 
+## اتصال به استاد تریدر
+
+خروجی Paper فقط شواهد پژوهشی است. برای فرستادن خلاصه به «استاد تریدر»، از قرارداد `schemas/paper_research_report.schema.json` و دستورالعمل `prompts/paper_research_agent.md` استفاده کنید. این اتصال یک‌طرفه است: Paper → Report → Mentor/Content. استاد تریدر و LLM اجازه ندارند تصمیم ریسک، حجم یا اجرای Paper را تغییر دهند.
+
 ## اجرا
 
 نیازی به نصب پکیج خارجی نیست (Python 3.11+):
